@@ -23,7 +23,7 @@ public class JWTUtil {
     }
 
     // 클레임 값 반환 메소드
-    public Claims getClaimValue(String token) {
+    private Claims getClaimValue(String token) {
         return Jwts.parser().verifyWith(secretKey).build()
                 .parseSignedClaims(token)
                 .getPayload();
