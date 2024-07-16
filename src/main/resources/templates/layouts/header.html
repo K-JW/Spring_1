@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>header</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <style>
+        .header-container {
+            display : flex;
+            justify-content : space-between;
+            align-items : center;
+            padding : 15px;
+        }
+        #main-home {
+            text-align : left;
+        }
+        #logout {
+            text-align : right;
+        }
+    </style>
+</head>
+<body>
+    <div class="container header-container">
+        <span>
+            <a id="main-home" class="btn btn-info" th:href="@{/articles}">Home</a>
+        </span>
+        <span>
+            <form th:action="@{/logout}" method="post">
+                <button id="logout" type="submit" class="btn btn-dark">Logout</button>
+            </form>
+        </span>
+    </div>
+</body>
+</html>
