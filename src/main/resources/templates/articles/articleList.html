@@ -6,30 +6,79 @@
     <title>ArticleList</title>
     <style>
         .article-link {
-            color : black;
+            color : inherit;
             text-decoration : none;
         }
+        .article-link:hover {
+            color : blue;
+            text-decoration : underline;
+        }
+        #edit-delete {
+            text-align : right;
+            padding-right : 15px;
+        }
+        .article-element {
+            cursor: pointer;
+        }
+        /*#view-count {*/
+        /*    text-align : center;*/
+        /*}*/
     </style>
 </head>
 <body>
-    <table class="table table-hover">
-        <thead>
-        <tr>
-            <th scope="col">번호</th>
-            <th scope="col">제목</th>
-            <th scope="col">작성자</th>
-            <th scope="col">작성일</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="article : ${articleList}">
-            <td th:text="${article.id}">Id</td>
-            <td><a th:href="@{/articles/{id}(id=${article.id})}" th:text="${article.title}" class="">Title</a></td>
-            <td th:text="${article.author.name}"></td>
-            <td th:text="${article.createdAt}"></td>
-        </tr>
-        </tbody>
-    </table>
-    <a th:href="@{/articles/new}">게시글 작성</a>
+
+    <div class="container">
+
+        <div th:replace="~{layouts/header.html}"></div>
+
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th scope="col">번호</th>
+                <th scope="col">제목</th>
+                <th scope="col">작성자</th>
+                <th scope="col">작성일</th>
+                <th scope="col">최근 수정일</th>
+                <th scope="col">조회수</th>
+                <th scope="col">댓글수</th>
+                <th scope="col"></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="article-element" th:each="article : ${articleList}" th:data-href="@{/articles/{id}(id=${article.id})}">
+                <td th:text="${article.id}">Id</td>
+                <td><a th:href="@{/articles/{id}(id=${article.id})}" th:text="${article.title}" class="article-link">Title</a></td>
+                <td th:text="${article.authorName}"></td>
+                <td th:text="${article.createdAt}"></td>
+                <td th:text="${article.modifiedAt}"></td>
+                <td id="view-count" th:text="${article.viewCount}"></td>
+                <td id="comment-count" th:text="${article.commentCount}"></td>
+                <td id="edit-delete">
+                    <a class="btn btn-light" th:href="@{/articles/edit/{id}(id=${article.id})}">수정</a>
+                    <a class="btn btn-warning" th:href="@{/articles/delete/{id}(id=${article.id})}">삭제</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <a class="btn btn-primary" th:href="@{/articles/new}">작성</a>
+    </div>
+
 </body>
+<script>
+    document.querySelectorAll(".article-element").forEach(article => {
+
+            article.addEventListener("click", function(event) {
+
+                const target = event.target;
+
+                if (target.tagName.toLowerCase() === 'a') {
+                    article.stopPropagation();
+                    return;
+                }
+
+                window.location.href = this.dataset.href;
+            });
+        }
+    );
+</script>
 </html>
