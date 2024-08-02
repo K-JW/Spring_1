@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>edit</title>
+</head>
+<body>
+
+<div th:replace="~{layouts/header.html}"></div>
+
+    <form class="container" th:action="@{/articles/update/{id}(id=${article.id})}" method="post">
+        <div class="mb-3">
+            <input type="text" class="form-control" name="title" placeholder="제목" th:value="${article.title}"/>
+        </div>
+        <div class="mb-3">
+            <textarea class="form-control" name="content" rows="3" placeholder="내용" th:text="${article.content}"></textarea>
+        </div>
+        <input type="hidden" name="authorSerial" th:value="${authorSerial}"/>
+        <button type="submit" class="btn btn-success">작성</button>
+        <a th:href="@{/articles}" class="btn btn-secondary">게시판</a>
+    </form>
+</body>
+</html>
