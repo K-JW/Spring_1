@@ -13,20 +13,26 @@
 <!--    </style>-->
 </head>
 <body class="gradient-custom">
-<section class="d-flex vh-100">
-    <div class="container-fluid row justify-content-center align-content-center">
-        <div class="card bg-dark" style="border-radius: 1rem;">
-            <div class="card-body p-5 text-center">
-                <h2 class="text-white">LOGIN</h2>
-                <p class="text-white-50 mt-2 mb-5">로그인이 필요합니다.</p>
-                <div class = "mb-2">
-                    <a href="/oauth2/authorization/google">
-                        <img src="/img/google.png">
-                    </a>
+
+    <div class="container">
+        <div th:replace="~{layouts/header.html}"></div>
+
+        <section class="d-flex vh-100">
+            <div class="container-fluid row justify-content-center align-content-center">
+                <div class="card bg-dark" style="border-radius: 1rem;">
+                    <div class="card-body p-5 text-center">
+                        <h2 class="text-white">LOGIN</h2>
+                        <p class="text-white-50 mt-2 mb-5">로그인이 필요합니다.</p>
+                        <div class = "mb-2">
+                            <a href="/oauth2/authorization/google">
+                                <img src="/img/google.png">
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
+        </section>
     </div>
-</section>
+
 </body>
 </html>
