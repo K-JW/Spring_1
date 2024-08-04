@@ -26,7 +26,7 @@
             </tr>
             <tr>
                 <td>
-                    <button type="button" class="btn btn-success reply-button" th:data-comment-id="${comment.commentId}">답글</button>
+                    <button type="button" class="btn btn-success reply-button" th:data-article-id="${article.id}" th:data-comment-id="${comment.commentId}">답글</button>
                 </td>
                 <td>
                     <a class="btn btn-warning update-button">수정</a>
@@ -34,7 +34,7 @@
                 </td>
             </tr>
 
-            <tr class="reply-form-row" style="display:none;" th:if="${reply.commentId} != ${reply.parentComment.id} and ${comment.commentId} == ${reply.parentComment.id}" th:each="reply : ${commentList}">
+            <tr class="reply-form-row" th:if="${reply.commentId} != ${reply.parentComment.id} and ${comment.commentId} == ${reply.parentComment.id}" th:each="reply : ${commentList}">
                 <td colspan="3" class="reply-comment" style="padding-left: 20px;">
                     <div>
                         <span th:text="${reply.authorName}">작성자</span>
@@ -50,56 +50,68 @@
         </tbody>
     </table>
 </div>
-</body>
+<!-- Bootstrap Modal -->
+<div class="modal fade" id="replyModal" tabindex="-1" aria-labelledby="replyModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="replyModalLabel">답글 작성</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="replyForm">
+                    <textarea class="form-control" rows="3" placeholder="답글을 입력하세요." name="content"></textarea>
+                    <input type="hidden" name="parentCommentId" id="modalParentId">
+                    <input type="hidden" name="articleId" id="modalArticleId">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                <button type="button" class="btn btn-primary" id="submitReply">작성</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll(".reply-button").forEach(button => {
             button.addEventListener("click", function(event) {
                 const commentId = this.getAttribute('data-comment-id');
-                const replyRow = this.closest('tr').nextElementSibling;
-                const replyFormContainer = replyRow.querySelector('.reply-form-container');
+                const articleId = this.getAttribute('data-article-id');
+                const modal = new bootstrap.Modal(document.getElementById('replyModal'));
 
-                if (replyRow.style.display === 'none') {
-                    // AJAX request to load commentInput.html
-                    fetch('/comments/commentInput.html')
-                        .then(response => response.text())
-                        .then(html => {
-                            replyFormContainer.innerHTML = html;
-                            // Set the parent comment ID
-                            const parentIdInput = replyFormContainer.querySelector('#parentId');
-                            if (parentIdInput) {
-                                parentIdInput.value = commentId;
-                            }
-                            // Show the reply form row
-                            replyRow.style.display = 'table-row';
-
-                            // Add event listener for the reply form submission
-                            const form = replyFormContainer.querySelector('form');
-                            form.addEventListener('submit', function(e) {
-                                e.preventDefault();
-                                const formData = new FormData(form);
-                                fetch('/api/comments/new', {
-                                    method: 'POST',
-                                    body: formData
-                                })
-                                    .then(response => response.json())
-                                    .then(data => {
-                                        console.log('Reply posted:', data);
-                                        // Here you can update the UI to show the new reply
-                                        // For example, you could reload the entire comment section
-                                        location.reload();
-                                    })
-                                    .catch(error => console.error('Error:', error));
-                            });
-                        })
-                        .catch(error => console.error('Error:', error));
-                } else {
-                    // Hide the reply form
-                    replyRow.style.display = 'none';
-                    replyFormContainer.innerHTML = '';
-                }
+                document.getElementById('modalParentId').value = commentId;
+                document.getElementById('modalArticleId').value = articleId;
+                modal.show();
             });
+        });
+
+        document.getElementById('submitReply').addEventListener('click', function() {
+            console.log("작성 버튼 클릭");
+
+            const form = document.getElementById('replyForm');
+            const formData = new FormData(form);
+            const reply = {
+                articleId: Number(formData.get("articleId")),
+                parentCommentId: Number(formData.get("parentCommentId")),
+                content: formData.get("content"),
+            }
+
+            fetch('/api/comments/new', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(reply)
+            })
+                .then(response => response.text())
+                .then(redirectUrl => {
+                    window.location.href = redirectUrl;
+                })
+                .catch(error => console.error('Error:', error));
         });
     });
 </script>
+</body>
 </html>
