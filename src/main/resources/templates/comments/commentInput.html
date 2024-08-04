@@ -7,11 +7,11 @@
 <body>
     <div class="container">
         <form id="comment-form" th:action="@{/api/comments/new}" method="post">
-            <textarea class="form-control" rows="3" name="content"></textarea>
+            <textarea class="form-control" rows="3" placeholder="댓글을 입력 하세요." name="content"></textarea>
             <input type="hidden" name="articleId" th:value="${article.id}">
-            <div class="mb-3">
+            <span class="mb-3">
                 <button type="submit" class="btn btn-primary">작성</button>
-            </div>
+            </span>
         </form>
     </div>
 </body>
@@ -19,27 +19,35 @@
     document.querySelector("#comment-form").addEventListener("submit", function(event) {
         event.preventDefault();
 
-        const formData = new FormData(event.target);
-        const comment = {
-            content: formData.get("content"),
-            articleId: Number(formData.get("articleId"))
-        };
+        const contentField = document.querySelector(".form-control");
+        const content = contentField.value.trim();
 
-        fetch('/api/comments/new', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(comment)
-        })
-            .then(response => response.text())  // Change to text() to receive the URL as a string
-            .then(redirectUrl => {
-                // On success, redirect to the article page
-                window.location.href = redirectUrl;
+        if (content === "") {
+            alert("댓글 내용을 입력 해주세요");
+        } else {
+            const formData = new FormData(event.target);
+            const comment = {
+                content: content,
+                articleId: Number(formData.get("articleId"))
+            };
+
+            fetch('/api/comments/new', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(comment)
             })
-            .catch(error => {
-                console.error('Error:', error);
-            });
+                .then(response => response.text())  // Change to text() to receive the URL as a string
+                .then(redirectUrl => {
+                    // On success, redirect to the article page
+                    window.location.href = redirectUrl;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
     });
 </script>
 
