@@ -27,15 +27,23 @@ public class Article extends BaseEntity {
     @JoinColumn(name = "name", referencedColumnName = "serial")
     private Member author;
 
+    @Column(name = "view_count")
+    private int viewCount;
+
     @Builder
     public Article(Member author, String title, String content) {
         this.author = author;
         this.title = title;
         this.content = content;
+        this.viewCount = 0;
     }
 
     public void update(String title, String content) {
         this.title = title;
         this.content = content;
+    }
+
+    public void addViewCount() {
+        this.viewCount++;
     }
 }
