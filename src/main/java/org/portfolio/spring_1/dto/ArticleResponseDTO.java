@@ -16,4 +16,11 @@ public class ArticleResponseDTO {
     private String content;
     private String authorName;
     private String createdAt;
+    private String modifiedAt;
+    private int viewCount;
+    private int commentCount;
+
+    public void update(int commentCount) {
+        this.commentCount = commentCount;
+    }
 }
