@@ -22,15 +22,15 @@
                 <td th:text="${comment.createdAt}">작성일</td>
             </tr>
             <tr>
-                <td id="comment-content" colspan="3" th:text="${comment.content}">내용</td>
+                <td id="comment-content                                                                                                                                                                                                                                      " colspan="3" th:text="${comment.content}">내용</td>
             </tr>
             <tr>
                 <td>
                     <button type="button" class="btn btn-success reply-button" th:data-article-id="${article.id}" th:data-comment-id="${comment.commentId}">답글</button>
                 </td>
                 <td>
-                    <a class="btn btn-warning update-button">수정</a>
-                    <a class="btn btn-secondary delete-button">삭제</a>
+                    <a class="btn btn-warning update-button" th:data-article-id="${article.id}" th:data-comment-id="${comment.commentId}">수정</a>
+                    <a class="btn btn-secondary delete-button" th:data-comment-id="${comment.commentId}">삭제</a>
                 </td>
             </tr>
 
@@ -40,8 +40,8 @@
                         <span th:text="${reply.authorName}">작성자</span>
                         <span th:text="${reply.createdAt}">작성일</span>
                         <p id="reply-content" th:text="${reply.content}">내용</p>
-                        <a class="btn btn-warning update-button">수정</a>
-                        <a class="btn btn-secondary delete-button">삭제</a>
+                        <a class="btn btn-warning update-button" th:data-article-id="${article.id}" th:data-comment-id="${reply.commentId}">수정</a>
+                        <a class="btn btn-secondary delete-button" th:data-comment-id="${reply.commentId}">삭제</a>
                     </div>
                     <div class="reply-form-container"></div>
                 </td>
@@ -50,7 +50,7 @@
         </tbody>
     </table>
 </div>
-<!-- Bootstrap Modal -->
+<!--답글 작성용 모달-->
 <div class="modal fade" id="replyModal" tabindex="-1" aria-labelledby="replyModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -73,8 +73,30 @@
     </div>
 </div>
 
+<!--댓글 수정용 모달-->
+<div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="updateModalLabel">수정 댓글 작성</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="updateForm">
+                    <textarea class="form-control" rows="3" placeholder="수정 내용을 입력하세요." name="content"></textarea>
+                    <input type="hidden" name="articleId" id="modalArticle">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                <button type="button" class="btn btn-primary" id="submitUpdate">작성</button>
+            </div>
+        </div>
+    </div>
+</div>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // 답글 작성용 모달 표시
         document.querySelectorAll(".reply-button").forEach(button => {
             button.addEventListener("click", function(event) {
                 const commentId = this.getAttribute('data-comment-id');
@@ -87,6 +109,7 @@
             });
         });
 
+        // 모달 창에서 답글 작성 버튼 클릭 시
         document.getElementById('submitReply').addEventListener('click', function() {
             console.log("작성 버튼 클릭");
 
@@ -110,6 +133,78 @@
                     window.location.href = redirectUrl;
                 })
                 .catch(error => console.error('Error:', error));
+        });
+
+        // 댓글 수정 용 모달창 표시
+        document.querySelectorAll('.update-button').forEach(button=>{
+            button.addEventListener('click', function(event){
+                event.preventDefault();
+
+                const articleId = this.getAttribute("data-article-id");
+                const commentId = this.getAttribute("data-comment-id");
+                const modal = new bootstrap.Modal(document.getElementById('updateModal'));
+
+                document.getElementById('modalArticle').value = articleId;
+                document.getElementById('submitUpdate').setAttribute('data-comment-id', commentId);
+                modal.show();
+            })
+        })
+
+        // 수정용 모달창에서 작성 버튼 클릭 시
+        document.getElementById('submitUpdate').addEventListener('click', function(){
+            const commentId = Number(this.getAttribute('data-comment-id'));
+            const form = document.getElementById('updateForm');
+            const formData = new FormData(form);
+
+            const update = {
+                articleId: Number(formData.get("articleId")),
+                content: formData.get("content")
+            }
+
+            fetch(`/api/comments/edit/${commentId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(update)
+            })
+                .then(response => {
+                    if (response.ok) {
+                        window.location.reload();
+                    } else {
+                        alert("댓글 수정에 실패 했습니다.");
+                    }
+                })
+                .catch(error => console.error('Error : ', error));
+        })
+
+
+        // 댓글 삭제 버튼 클릭 시
+        document.querySelectorAll('.delete-button').forEach(button=>{
+            button.addEventListener('click', function(event){
+                event.preventDefault();
+
+                if (confirm('댓글을 삭제하시겠습니까?')){
+                    const commentId = this.getAttribute("data-comment-id");
+
+                    fetch(`/api/comments/delete/${commentId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                        .then(response=> {
+                            if (response.ok) {
+                                window.location.reload();
+                            } else {
+                                alert("댓글 삭제에 실패 했습니다");
+                            }
+                        })
+                        .catch(error=>{
+                            console.error("Error : ", error);
+                        });
+                }
+            });
         });
     });
 </script>
