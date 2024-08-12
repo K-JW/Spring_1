@@ -1,10 +1,8 @@
 package org.portfolio.spring_1.service;
 
 import lombok.RequiredArgsConstructor;
-import org.portfolio.spring_1.dto.CustomOAuth2Member;
-import org.portfolio.spring_1.dto.GoogleResponse;
-import org.portfolio.spring_1.dto.MemberDTO;
-import org.portfolio.spring_1.dto.OAuth2UserResponse;
+import lombok.extern.slf4j.Slf4j;
+import org.portfolio.spring_1.dto.*;
 import org.portfolio.spring_1.entity.Member;
 import org.portfolio.spring_1.entity.MemberRole;
 import org.portfolio.spring_1.repository.MemberRepository;
@@ -14,8 +12,11 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
+import java.util.NoSuchElementException;
+
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CustomOAuth2MemberService extends DefaultOAuth2UserService {
 
     private final MemberRepository memberRepository;
@@ -33,6 +34,8 @@ public class CustomOAuth2MemberService extends DefaultOAuth2UserService {
 
         if (registrationId.equals("google")) {
             oAuth2UserResponse = new GoogleResponse(oAuth2User.getAttributes());
+        } else if (registrationId.equals("naver")) {
+            oAuth2UserResponse = new NaverResponse(oAuth2User.getAttributes());
         } else {
             return null;
         }
@@ -43,27 +46,27 @@ public class CustomOAuth2MemberService extends DefaultOAuth2UserService {
         String name = oAuth2UserResponse.getName();
         String email = oAuth2UserResponse.getEmail();
 
-        Member findMember = memberRepository.findBySerial(serial);
+        Member getMember = memberRepository.findBySerial(serial);
 
         // serial로 DB 조회 시 null이면
         // 사용자가 최초로 OAuth2로 login 하는 경우
-        if (findMember == null) {
-            return createCustomOauth2Member(serial, provider, name, email, MemberRole.USER);
+        if (getMember == null) {
+            return createCustomOauth2Member(serial, provider, name, email);
         }
         // 최초 로그인이 아닌 경우
-        else return createCustomOauth2Member(findMember.getSerial(),
-                provider, name, email, findMember.getMemberRole());
+        else return createCustomOauth2Member(getMember.getSerial(),
+                provider, name, email);
     }
 
 
-    public CustomOAuth2Member createCustomOauth2Member(String serial, String provider, String name, String email, MemberRole memberRole) {
+    public CustomOAuth2Member createCustomOauth2Member(String serial, String provider, String name, String email) {
 
         Member member = Member.builder()
                 .serial(serial)
                 .provider(provider)
                 .name(name)
                 .email(email)
-                .memberRole(memberRole)
+                .memberRole(MemberRole.USER)
                 .build();
 
         memberRepository.save(member);
@@ -72,9 +75,31 @@ public class CustomOAuth2MemberService extends DefaultOAuth2UserService {
                 .serial(serial)
                 .name(name)
                 .provider(provider)
-                .role(String.valueOf(memberRole))
+                .role(String.valueOf(MemberRole.USER))
                 .build();
 
-        return new CustomOAuth2Member(memberDTO);
+        CustomOAuth2Member customOAuth2Member = new CustomOAuth2Member(memberDTO);
+        log.info("oauth2Member role = {}", MemberRole.USER);
+
+        return customOAuth2Member;
     }
+
+    // 현재 로그인 된 사용자 serial의 DB 확인 method
+    public Member getMemberBySerial(String loggedInMemberSerial) {
+
+        if (loggedInMemberSerial == null) {
+            throw new IllegalArgumentException("loggedInMemberSerial is null");
+        }
+
+        Member getLoggedInMember = memberRepository.findBySerial(loggedInMemberSerial);
+
+        if (getLoggedInMember == null) {
+            throw new NoSuchElementException("해당 Serial의 Member가 DB에 존재하지 않습니다.");
+        }
+
+        log.info("memberSerial = {}", getLoggedInMember.getSerial());
+
+        return getLoggedInMember;
+    }
+
 }
