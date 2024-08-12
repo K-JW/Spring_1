@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 public class SocialClientRegistration {
 
     public ClientRegistration googleClient() {
-        return ClientRegistration.withClientRegistration("google")
+        return ClientRegistration.withRegistrationId("google")
                 .clientId("1068190921774-bstlom3ha1c7itj5kno8e7f4kq3i1kec.apps.googleusercontent.com")
                 .clientSecret("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")
                 .redirectUri("http://localhost:8080/login/oauth2/code/google")
@@ -20,8 +20,22 @@ public class SocialClientRegistration {
                 // 선택 사항
                 .issuerUri("https://accounts.google.com")
                 .jwkSetUri("https://www.googleapis.com/oauth2/v3/certs")
-                .userInfoUri("https://www.googleapis.com/oauth2/v3/userInfo")
+                .userInfoUri("https://www.googleapis.com/oauth2/v3/userinfo")
                 .userNameAttributeName(IdTokenClaimNames.SUB)
+                .build();
+    }
+
+    public ClientRegistration naverClient() {
+        return ClientRegistration.withRegistrationId("naver")
+                .clientId("imeGTwdgMhrFUwbAq3jZ")
+                .clientSecret("jQ8Sj1mmG6")
+                .redirectUri("http://localhost:8080/login/oauth2/code/naver")
+                .scope("email", "name")
+                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                .authorizationUri("https://nid.naver.com/oauth2.0/authorize")
+                .tokenUri("https://nid.naver.com/oauth2.0/token")
+                .userInfoUri("https://openapi.naver.com/v1/nid/me")
+                .userNameAttributeName("response")
                 .build();
     }
 }
