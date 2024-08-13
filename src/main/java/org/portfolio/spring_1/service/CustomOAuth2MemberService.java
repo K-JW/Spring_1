@@ -36,6 +36,8 @@ public class CustomOAuth2MemberService extends DefaultOAuth2UserService {
             oAuth2UserResponse = new GoogleResponse(oAuth2User.getAttributes());
         } else if (registrationId.equals("naver")) {
             oAuth2UserResponse = new NaverResponse(oAuth2User.getAttributes());
+        } else if (registrationId.equals("kakao")) {
+            oAuth2UserResponse = new KakaoResponse(oAuth2User.getAttributes());
         } else {
             return null;
         }
