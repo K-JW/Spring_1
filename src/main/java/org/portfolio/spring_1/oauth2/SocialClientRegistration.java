@@ -2,6 +2,7 @@ package org.portfolio.spring_1.oauth2;
 
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.stereotype.Component;
 
@@ -36,6 +37,22 @@ public class SocialClientRegistration {
                 .tokenUri("https://nid.naver.com/oauth2.0/token")
                 .userInfoUri("https://openapi.naver.com/v1/nid/me")
                 .userNameAttributeName("response")
+                .build();
+    }
+
+    public ClientRegistration kakaoClient() {
+        return ClientRegistration.withRegistrationId("kakao")
+                .clientId("010ec21f0cc86fabacf6620b120d23d3")
+                .clientSecret("944uM09bfAMOCmBJYqyc8midvveJpUo6")
+                .redirectUri("http://localhost:8080/login/oauth2/code/kakao")
+                .scope("profile_nickname", "account_email")
+                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                .authorizationUri("https://kauth.kakao.com/oauth/authorize")
+                .tokenUri("https://kauth.kakao.com/oauth/token")
+                .userInfoUri("https://kapi.kakao.com/v2/user/me")
+                .userNameAttributeName("id")
+                // kakao oauth2 필수 추가 항목
+                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
                 .build();
     }
 }
