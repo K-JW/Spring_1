@@ -20,9 +20,6 @@
         .article-element {
             cursor: pointer;
         }
-        /*#view-count {*/
-        /*    text-align : center;*/
-        /*}*/
     </style>
 </head>
 <body>
@@ -42,6 +39,7 @@
                 <th scope="col">조회수</th>
                 <th scope="col">댓글수</th>
                 <th scope="col"></th>
+                <th scope="col"></th>
             </tr>
             </thead>
             <tbody>
@@ -55,7 +53,10 @@
                 <td id="comment-count" th:text="${article.commentCount}"></td>
                 <td id="edit-delete">
                     <a class="btn btn-light" th:href="@{/articles/edit/{id}(id=${article.id})}">수정</a>
-                    <a class="btn btn-warning" th:href="@{/articles/delete/{id}(id=${article.id})}">삭제</a>
+                    <a class="btn btn-warning" th:href="@{/articles/delete/{id}(id=${article.id})}" onclick="return confirm('게시글을 삭제하시겠습니까?');">삭제</a>
+                </td>
+                <td id="report">
+                    <button type="button" id="report-button" class="btn btn-danger">신고</button>
                 </td>
             </tr>
             </tbody>
