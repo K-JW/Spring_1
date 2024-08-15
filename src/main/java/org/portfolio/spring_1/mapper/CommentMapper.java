@@ -9,14 +9,16 @@ import org.portfolio.spring_1.entity.Member;
 import org.springframework.stereotype.Component;
 
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 
 @Component
 public class CommentMapper {
 
-    public Comment toEntity(CommentRequestDTO commentRequestDTO, Article article, Member author) {
+    public Comment toEntity(CommentRequestDTO commentRequestDTO, Article article, Member author, Comment getParentComment) {
 
         return Comment.builder()
                 .article(article)
+                .parentComment(getParentComment)
                 .author(author)
                 .content(commentRequestDTO.getContent())
                 .build();
@@ -29,6 +31,10 @@ public class CommentMapper {
         String formattedModifiedAt = comment.getModifiedAt().format(formatter);
 
         return CommentResponseDTO.builder()
+                .articleId(comment.getArticle().getId())
+                .commentId(comment.getId())
+                .parentComment(comment.getParentComment())
+                .replyComment(comment.getReplyComment())
                 .authorName(comment.getAuthor().getName())
                 .content(comment.getContent())
                 .createdAt(formattedCreatedAt)
