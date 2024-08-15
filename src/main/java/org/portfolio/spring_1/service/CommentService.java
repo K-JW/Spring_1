@@ -105,7 +105,6 @@ public class CommentService {
                 new NoSuchElementException("해당 ID의 댓글이 DB에 존재하지 않습니다."));
 
         // 조회한 comment가 댓글이면 답글의 parentComment 필드 변경 작업 수행
-        // 답글이면 별도 로직 수행 없이 바로 삭제
         if (Objects.equals(getComment.getId(), getComment.getParentComment().getId())) {
             // 삭제 요청 댓글의 답글 DB 조회
             List<Comment> getReplyCommentList = commentRepository.findAllByParentComment(getComment);
@@ -123,6 +122,14 @@ public class CommentService {
                 comment.replyUpdate(updateParentComment);
                 commentRepository.save(comment);
             }
+        }
+        // 답글이면 부모 댓글을 조회 해서 부모 댓글의 replyComment를 null로 변경
+        else {
+            Comment getParentComment = commentRepository.findById(getComment.getParentComment().getId()).orElseThrow(() ->
+                    new NoSuchElementException("삭제하려는 답글의 댓글이 DB에 존재하지 않습니다."));
+
+            getParentComment.updateReply(null);
+            commentRepository.save(getParentComment);
         }
 
         commentRepository.delete(getComment);
