@@ -56,7 +56,7 @@
                     <a class="btn btn-warning" th:href="@{/articles/delete/{id}(id=${article.id})}" onclick="return confirm('게시글을 삭제하시겠습니까?');">삭제</a>
                 </td>
                 <td id="report">
-                    <button type="button" id="report-button" class="btn btn-danger">신고</button>
+                    <button type="button" id="report-button" class="btn btn-danger" th:data-article-id="${article.id}" data-bs-toggle="modal" data-bs-target="#report-modal">신고</button>
                 </td>
             </tr>
             </tbody>
@@ -64,22 +64,81 @@
         <a class="btn btn-primary" th:href="@{/articles/new}">작성</a>
     </div>
 
+<!--    게시글 신고 버튼 클릭 시 표시 되는 모달 창-->
+<div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 id="report-button-label">게시글 신고</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="mb-3">
+                        <label class="form-label">신고 유형</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="spam" name="reportType" value="span">
+                            <label class="form-check-label" for="spam">스팸</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="inappropriate" name="reportType" value="inappropriate">
+                            <label class="form-check-label" for="inappropriate">부적절한 내용</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="hate-speech" name="reportType" value="hate-speech">
+                            <label class="form-check-label" for="hate-speech">혐오 발언</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="other" name="reportType" value="other">
+                            <label class="form-check-label" for="other">기타</label>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="report-details" class="form-label">상세 내용</label>
+                        <input type="hidden" name="articleId" id="modalArticleId">
+                        <textarea class="form-control" id="report-details" rows="3" placeholder="신고 사유를 입력하세요."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-dark" data-bs-dismiss="modal">취소</button>
+                <button type="button" class="btn btn-secondary">제출</button>
+            </div>
+        </div>
+    </div>
+</div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 </body>
 <script>
-    document.querySelectorAll(".article-element").forEach(article => {
 
-            article.addEventListener("click", function(event) {
+    document.addEventListener('DOMContentLoaded', function(){
+        document.querySelectorAll(".article-element").forEach(article => {
 
-                const target = event.target;
+                article.addEventListener("click", function(event) {
 
-                if (target.tagName.toLowerCase() === 'a') {
-                    article.stopPropagation();
-                    return;
-                }
+                    const target = event.target;
 
-                window.location.href = this.dataset.href;
+                    if (target.tagName.toLowerCase() === 'a' || target.id === 'report-button') {
+                        article.stopPropagation();
+                        return;
+                    }
+
+                    window.location.href = this.dataset.href;
+                });
+            }
+        );
+
+        document.querySelectorAll("#report-button").forEach(button=>{
+            button.addEventListener("click", function(event){
+                const articleId = this.getAttribute('data-article-id');
+
+                const modal = new bootstrap.Modal(document.getElementById('reportModal'));
+
+                document.getElementById('modalArticleId').value = articleId;
+                modal.show();
             });
-        }
-    );
+        });
+    });
+
 </script>
 </html>
