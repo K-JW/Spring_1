@@ -7,18 +7,33 @@
 </head>
 <body>
 
-    <div th:replace="layouts/header.html"></div>
+<div th:replace="~{layouts/header.html}"></div>
 
-    <form class="container" action="/articles/create" method="post">
+    <form id="article-create-form" class="container" action="/articles/create" method="post">
         <div class="mb-3">
-            <input type="text" class="form-control" placeholder="제목" name="title"/>
+            <input id="article-create-title" type="text" class="form-control" placeholder="제목" name="title"/>
         </div>
         <div class="mb-3">
-            <textarea class="form-control" rows="3" placeholder="내용" name="content"></textarea>
+            <textarea id="article-create-content" class="form-control" rows="3" placeholder="내용" name="content"></textarea>
         </div>
         <button type="submit" class="btn btn-success">작성</button>
         <input type="hidden" name="authorSerial" th:value="${authorSerial}"/>
         <a th:href="@{/articles}" class="btn btn-secondary">게시판</a>
     </form>
+
+<script>
+    document.getElementById('article-create-form').addEventListener('submit', function(event){
+        const title = document.getElementById('article-create-title').value.trim();
+        const content = document.getElementById('article-create-content').value.trim();
+
+        if (!title){
+            event.preventDefault();
+            alert("게시글 제목을 입력 해주세요.")
+        } if (!content){
+            event.preventDefault();
+            alert("게시글 내용을 입력 해주세요.")
+        }
+    })
+</script>
 </body>
 </html>
