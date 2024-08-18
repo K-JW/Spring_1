@@ -3,7 +3,6 @@ package org.portfolio.spring_1.config;
 import lombok.RequiredArgsConstructor;
 import org.portfolio.spring_1.jwt.CustomLogoutFilter;
 import org.portfolio.spring_1.jwt.JWTFilter;
-import org.portfolio.spring_1.jwt.JWTUtil;
 import org.portfolio.spring_1.oauth2.CustomClientRegistrationRepo;
 import org.portfolio.spring_1.oauth2.CustomFailureHandler;
 import org.portfolio.spring_1.oauth2.CustomSuccessHandler;
@@ -14,7 +13,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
@@ -28,7 +26,7 @@ public class SecurityConfig {
     private final CustomFailureHandler customFailureHandler;
     private final CustomClientRegistrationRepo customClientRegistrationRepo;
     private final CustomOAuth2MemberService customOAuth2MemberService;
-    private final JWTUtil jwtUtil;
+    private final CorsConfig corsConfig;
     private final JWTFilter jwtFilter;
     private final CustomLogoutFilter customLogoutFilter;
 
@@ -47,6 +45,9 @@ public class SecurityConfig {
         // Logout Disable
 //        http.logout(AbstractHttpConfigurer::disable);
 
+        // CORS Config
+        http.cors(corsCustomizer -> corsCustomizer.configurationSource(corsConfig));
+
         // JWT Filter
         http.addFilterBefore(jwtFilter, OAuth2LoginAuthenticationFilter.class);
 
@@ -54,6 +55,7 @@ public class SecurityConfig {
         http.oauth2Login((oauth2) -> oauth2
                 .loginPage("/login")
                 .successHandler(customSuccessHandler)
+//                .defaultSuccessUrl("/articles")
                 .failureHandler(customFailureHandler)
                 .clientRegistrationRepository(customClientRegistrationRepo.clientRegistrationRepository())
                 .userInfoEndpoint(userInfoEndpointConfig ->
@@ -61,16 +63,18 @@ public class SecurityConfig {
 
         // Authorize
         http.authorizeHttpRequests((auth) -> auth
-                .requestMatchers( "/", "/**").permitAll()
-                .anyRequest().permitAll()
+                .requestMatchers("/login", "/articles").permitAll()
+                .anyRequest().authenticated()
         );
 
         // Logout
         http.addFilterBefore(customLogoutFilter, LogoutFilter.class);
 
         // Session Config
-        http.sessionManagement((session) -> session
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+//        http.sessionManagement((session) -> session
+//                .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+//        http.sessionManagement((session) -> session
+//                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED));
 
         return http.build();
     }
@@ -78,6 +82,7 @@ public class SecurityConfig {
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return (web)-> web.ignoring()
+                .requestMatchers("/error")
                 .requestMatchers("/favicon.ico")
                 .requestMatchers("/h2-console/**")
                 .requestMatchers("/img/**", "/css/**", "/js/**");
