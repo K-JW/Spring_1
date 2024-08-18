@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:sec="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <title>header</title>
@@ -8,27 +8,36 @@
         .header-container {
             display : flex;
             justify-content : space-between;
-            align-items : center;
             padding : 15px;
         }
         #main-home {
             text-align : left;
         }
-        #logout {
-            text-align : right;
+        #auth-buttons {
+            display : flex;
+            gap : 10px;
+        }
+        #loggedInMember {
+            gap : 10px;
         }
     </style>
 </head>
 <body>
     <div class="container header-container">
-        <span>
+        <div>
             <a id="main-home" class="btn btn-info" th:href="@{/articles}">Home</a>
-        </span>
-        <span>
-            <form th:action="@{/logout}" method="post">
-                <button id="logout" type="submit" class="btn btn-dark">Logout</button>
-            </form>
-        </span>
+        </div>
+        <div id="auth-buttons">
+            <div sec:authorize="isAnonymous()">
+                <a class="btn btn-primary" th:href="@{/login}">Login</a>
+            </div>
+            <div sec:authorize="isAuthenticated()">
+                <a id="loggedInMember" sec:authentication="name"></a>님
+                <form th:action="@{/logout}" method="post" style="display : inline;">
+                    <button id="logout" type="submit" class="btn btn-dark">Logout</button>
+                </form>
+            </div>
+        </div>
     </div>
 </body>
 </html>
