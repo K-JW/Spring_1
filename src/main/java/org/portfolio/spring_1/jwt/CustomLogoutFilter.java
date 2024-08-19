@@ -66,10 +66,12 @@ public class CustomLogoutFilter extends GenericFilterBean {
         // 클라이언트 쿠키 값 초기화 메소드 호출
         Cookie refresh = deleteCookie("refresh");
         Cookie access = deleteCookie("access");
+        Cookie session = deleteCookie("JSESSIONID");
 
         response.setStatus(HttpServletResponse.SC_OK); // == 200
         response.addCookie(refresh);
         response.addCookie(access);
+        response.addCookie(session);
 
         System.out.println("redis에 존재하는 refresh token 삭제 후 login page로 이동");
         response.sendRedirect("/login");
