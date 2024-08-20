@@ -1,6 +1,5 @@
 package org.portfolio.spring_1.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.portfolio.spring_1.dto.ArticleRequestDTO;
 import org.portfolio.spring_1.dto.ArticleResponseDTO;
@@ -43,11 +42,10 @@ public class ArticleController {
         String memberSerial = customOAuth2Member.getSerial();
         Member member = memberService.getMemberBySerial(memberSerial);
 
-        ArticleResponseDTO article = articleService.getArticleByIdAndSerial(articleId, memberSerial, false);
+        ArticleResponseDTO article = articleService.getAndReturnArticleByIdAndSerial(articleId,false);
 
         List<CommentResponseDTO> commentList = commentService.getCommentListByArticleId(articleId);
 
-        model.addAttribute("loggedInMember", member.getSerial());
         model.addAttribute("article", article);
         model.addAttribute("commentList", commentList);
 
@@ -74,12 +72,12 @@ public class ArticleController {
     @GetMapping("/edit/{id}")
     public String getArticleEditForm(@PathVariable Long id, @AuthenticationPrincipal CustomOAuth2Member customOAuth2Member, Model model) {
 
-        String memberSerial = customOAuth2Member.getSerial();
+        String getLoggedInMemberSerial = customOAuth2Member.getSerial();
 
-        ArticleResponseDTO article = articleService.getArticleByIdAndSerial(id, memberSerial, true);
+        ArticleResponseDTO article = articleService.getAndReturnArticleByIdAndSerial(id, true);
 
+        model.addAttribute("loggedInMemberSerial", getLoggedInMemberSerial);
         model.addAttribute("article", article);
-        model.addAttribute("authorSerial", memberSerial);
 
         return "articles/edit";
     }
