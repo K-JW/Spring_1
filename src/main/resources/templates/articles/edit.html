@@ -15,7 +15,7 @@
         <div class="mb-3">
             <textarea class="form-control" name="content" rows="3" placeholder="내용" th:text="${article.content}"></textarea>
         </div>
-        <input type="hidden" name="authorSerial" th:value="${authorSerial}"/>
+        <input type="hidden" name="authorSerial" th:value="${loggedInMemberSerial}"/>
         <button type="submit" class="btn btn-success">작성</button>
         <a th:href="@{/articles}" class="btn btn-secondary">게시판</a>
     </form>
