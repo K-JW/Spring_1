@@ -37,7 +37,7 @@ public class JWTUtil {
         return getClaimValue(token).getExpiration().before(new Date());
     }
 
-    public String createJwt(String serial, String role, String category, String name, String provider, Long expiredMs) {
+    public String createJwt(String category, String serial, String role, String name, String provider, Long expiredMs) {
         return Jwts.builder()
                 .claim("serial", serial)
                 .claim("role", role)
