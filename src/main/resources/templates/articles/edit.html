@@ -9,15 +9,23 @@
 <div th:replace="~{layouts/header.html}"></div>
 
     <form class="container" th:action="@{/articles/update/{id}(id=${article.id})}" method="post">
-        <div class="mb-3">
-            <input type="text" class="form-control" name="title" placeholder="제목" th:value="${article.title}"/>
+        <div class="row mb-3">
+            <div class="col-md-8 col-lg-6">
+                <input type="text" class="form-control" name="title" placeholder="제목" th:value="${article.title}"/>
+            </div>
         </div>
-        <div class="mb-3">
-            <textarea class="form-control" name="content" rows="3" placeholder="내용" th:text="${article.content}"></textarea>
+        <div class="row mb-3">
+            <div class="col-md-8 col-lg-6">
+                <textarea class="form-control" name="content" rows="9" placeholder="내용" th:text="${article.content}"></textarea>
+            </div>
         </div>
-        <input type="hidden" name="authorSerial" th:value="${loggedInMemberSerial}"/>
-        <button type="submit" class="btn btn-success">작성</button>
-        <a th:href="@{/articles}" class="btn btn-secondary">게시판</a>
+        <div class="row mb-3">
+            <div class="col-md-8 col-lg-6 justify-content-flex-start">
+                <input type="hidden" name="authorSerial" th:value="${loggedInMemberSerial}"/>
+                <button type="submit" class="btn btn-success">작성</button>
+                <a th:href="@{/articles}" class="btn btn-secondary">게시판</a>
+            </div>
+        </div>
     </form>
 </body>
 </html>
