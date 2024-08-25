@@ -11,14 +11,12 @@
     </style>
 </head>
 <body>
-<div class="container">
+<div class="row mb-3">
     <table class="table">
         <tbody th:if="${comment.commentId} == ${comment.parentComment.id}" th:each="comment : ${commentList}">
         <div>
             <tr>
                 <td th:text="${comment.authorName}">작성자</td>
-            </tr>
-            <tr>
                 <td th:text="${comment.createdAt}">작성일</td>
             </tr>
             <tr>
@@ -33,7 +31,6 @@
                     <a class="btn btn-secondary delete-button" th:data-comment-id="${comment.commentId}">삭제</a>
                 </td>
             </tr>
-
             <tr class="reply-form-row" th:if="${reply.commentId} != ${reply.parentComment.id} and ${comment.commentId} == ${reply.parentComment.id}" th:each="reply : ${commentList}">
                 <td colspan="3" class="reply-comment" style="padding-left: 20px;">
                     <div>
