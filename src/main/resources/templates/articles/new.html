@@ -10,15 +10,23 @@
 <div th:replace="~{layouts/header.html}"></div>
 
     <form id="article-create-form" class="container" action="/articles/create" method="post">
-        <div class="mb-3">
-            <input id="article-create-title" type="text" class="form-control" placeholder="제목" name="title"/>
+        <div class="row mb-3 justify-content-flex-start">
+            <div class="col-md-8 col-lg-6">
+                <input id="article-create-title" type="text" class="form-control" placeholder="제목" name="title"/>
+            </div>
         </div>
-        <div class="mb-3">
-            <textarea id="article-create-content" class="form-control" rows="3" placeholder="내용" name="content"></textarea>
+        <div class="row mb-3">
+            <div class="col-md-8 col-lg-6">
+                <textarea id="article-create-content" class="form-control" rows="9" placeholder="내용" name="content"></textarea>
+            </div>
         </div>
-        <button type="submit" class="btn btn-success">작성</button>
-        <input type="hidden" name="authorSerial" th:value="${authorSerial}"/>
-        <a th:href="@{/articles}" class="btn btn-secondary">게시판</a>
+        <div class="row justify-content-flex-start">
+            <div class="col-md-8 col-lg-6">
+                <button type="submit" class="btn btn-success">작성</button>
+                <input type="hidden" name="authorSerial" th:value="${authorSerial}"/>
+                <a th:href="@{/articles}" class="btn btn-secondary">게시판</a>
+            </div>
+        </div>
     </form>
 
 <script>
