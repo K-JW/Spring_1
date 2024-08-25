@@ -5,15 +5,17 @@
     <title>commentInput</title>
 </head>
 <body>
-    <div class="container">
-        <form id="comment-form" th:action="@{/api/comments/new}" method="post">
-            <textarea class="form-control" rows="3" placeholder="댓글을 입력 하세요." name="content"></textarea>
-            <input type="hidden" name="articleId" th:value="${article.id}">
-            <span class="mb-3">
+    <form id="comment-form" th:action="@{/api/comments/new}" method="post">
+        <div class="row mb-3 justify-content-flex-between align-items-end">
+            <div class="col-md-8 col-lg-6">
+                <textarea class="form-control" rows="3" placeholder="댓글을 입력 하세요." name="content"></textarea>
+            </div>
+            <div class="col-md-8 col-lg-6">
+                <input type="hidden" name="articleId" th:value="${article.id}">
                 <button type="submit" class="btn btn-primary">작성</button>
-            </span>
-        </form>
-    </div>
+            </div>
+        </div>
+    </form>
 </body>
 <script>
     document.querySelector("#comment-form").addEventListener("submit", function(event) {
