@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.portfolio.spring_1.entity.Member;
 
 @Getter
 @NoArgsConstructor
@@ -14,7 +15,7 @@ public class ArticleResponseDTO {
     private Long id;
     private String title;
     private String content;
-    private String authorName;
+    private Member authorMember;
     private String createdAt;
     private String modifiedAt;
     private int viewCount;
