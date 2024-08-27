@@ -8,10 +8,9 @@ import org.portfolio.spring_1.entity.Article;
 import org.portfolio.spring_1.entity.Member;
 import org.portfolio.spring_1.mapper.ArticleMapper;
 import org.portfolio.spring_1.repository.ArticleRepository;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -25,27 +24,44 @@ public class ArticleService {
     private final CustomOAuth2MemberService memberService;
     private final ArticleMapper articleMapper;
 
-    public List<ArticleResponseDTO> getAll() {
+    public Page<ArticleResponseDTO> getAll(Pageable pageable) {
 
-        List<ArticleResponseDTO> articlesWithCommentCount = new ArrayList<>();
+        int pageNumber = pageable.getPageNumber()-1;
 
-        List<Article> getArticleList = articleRepository.findAll();
+        int pageLimit = 3;
 
-        if (getArticleList.isEmpty()) {
-            return articlesWithCommentCount;
+        Page<Article> pagingArticles = articleRepository.findAll(PageRequest.of(pageNumber, pageLimit, Sort.by(Sort.Direction.DESC, "id")));
+
+        // 총 게시글 수, 페이지 수 등 페이징 정보 출력
+        getPagingArticlesInfo(pagingArticles);
+
+        if (pagingArticles.isEmpty()) {
+            return Page.empty();
         }
 
-        for (Article article : getArticleList) {
-            Long articleId = article.getId();
+        Page<ArticleResponseDTO> pagingDTOs = pagingArticles.map(articleMapper::toDTO);
+
+        for (ArticleResponseDTO pagingDTO : pagingDTOs) {
+            Long articleId = pagingDTO.getId();
 
             int commentCount = commentService.getCommentCountByArticleId(articleId);
-            ArticleResponseDTO responseDTO = articleMapper.toDTO(article);
-            responseDTO.update(commentCount);
 
-            articlesWithCommentCount.add(responseDTO);
+            pagingDTO.update(commentCount);
         }
 
-        return articlesWithCommentCount;
+        return pagingDTOs;
+
+    }
+
+    public void getPagingArticlesInfo(Page<Article> pagingArticles) {
+        System.out.println(pagingArticles.getContent());
+        System.out.println(pagingArticles.getTotalElements());
+        System.out.println(pagingArticles.getNumber());
+        System.out.println(pagingArticles.getTotalPages());
+        System.out.println(pagingArticles.getSize());
+        System.out.println(pagingArticles.hasPrevious());
+        System.out.println(pagingArticles.isFirst());
+        System.out.println(pagingArticles.isLast());
     }
 
     public ArticleResponseDTO getAndReturnArticleByIdAndSerial(Long id, boolean isUpdate) {
