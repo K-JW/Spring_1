@@ -1,6 +1,5 @@
 package org.portfolio.spring_1.mapper;
 
-import org.portfolio.spring_1.dto.ArticleRequestDTO;
 import org.portfolio.spring_1.dto.CommentRequestDTO;
 import org.portfolio.spring_1.dto.CommentResponseDTO;
 import org.portfolio.spring_1.entity.Article;
@@ -9,7 +8,6 @@ import org.portfolio.spring_1.entity.Member;
 import org.springframework.stereotype.Component;
 
 import java.time.format.DateTimeFormatter;
-import java.util.Optional;
 
 @Component
 public class CommentMapper {
@@ -35,7 +33,7 @@ public class CommentMapper {
                 .commentId(comment.getId())
                 .parentComment(comment.getParentComment())
                 .replyComment(comment.getReplyComment())
-                .authorName(comment.getAuthor().getName())
+                .authorMember(comment.getAuthor())
                 .content(comment.getContent())
                 .createdAt(formattedCreatedAt)
                 .modifiedAt(formattedModifiedAt)
