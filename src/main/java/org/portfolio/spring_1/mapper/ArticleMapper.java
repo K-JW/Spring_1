@@ -28,7 +28,7 @@ public class ArticleMapper {
                 .id(article.getId())
                 .title(article.getTitle())
                 .content(article.getContent())
-                .authorName(article.getAuthor().getName())
+                .authorMember(article.getAuthor())
                 .createdAt(formattedCreatedAt)
                 .modifiedAt(formattedModifiedAt)
                 .viewCount(article.getViewCount())
