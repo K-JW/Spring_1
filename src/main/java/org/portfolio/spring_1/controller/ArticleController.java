@@ -9,6 +9,9 @@ import org.portfolio.spring_1.entity.Member;
 import org.portfolio.spring_1.service.ArticleService;
 import org.portfolio.spring_1.service.CommentService;
 import org.portfolio.spring_1.service.CustomOAuth2MemberService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,9 +30,17 @@ public class ArticleController {
 
     // 전체 게시글 조회 페이지 반환
     @GetMapping
-    public String getArticleList(Model model) {
-        List<ArticleResponseDTO> articleList = articleService.getAll();
+    public String getArticleList(@PageableDefault(page = 1) Pageable pageable, @AuthenticationPrincipal CustomOAuth2Member oAuth2Member, Model model) {
+        String getLoggedInMemberSerial = oAuth2Member.getSerial();
+        Page<ArticleResponseDTO> articleList = articleService.getAll(pageable);
 
+        int blockLimit = 10;
+        int startPage = (((int) Math.ceil(((double) pageable.getPageNumber() / blockLimit))) -1) * blockLimit + 1;
+        int endPage = Math.min((startPage + blockLimit-1), articleList.getTotalPages());
+
+        model.addAttribute("startPage", startPage);
+        model.addAttribute("endPage", endPage);
+        model.addAttribute("loggedInMemberSerial", getLoggedInMemberSerial);
         model.addAttribute("articleList", articleList);
 
         return "articles/articleList";
@@ -39,13 +50,14 @@ public class ArticleController {
     @GetMapping("/{articleId}")
     public String getArticle(@PathVariable Long articleId, @AuthenticationPrincipal CustomOAuth2Member customOAuth2Member, Model model) {
 
-        String memberSerial = customOAuth2Member.getSerial();
-        Member member = memberService.getMemberBySerial(memberSerial);
+        String getLoggedInMemberSerial = customOAuth2Member.getSerial();
+        Member member = memberService.getMemberBySerial(getLoggedInMemberSerial);
 
         ArticleResponseDTO article = articleService.getAndReturnArticleByIdAndSerial(articleId,false);
 
         List<CommentResponseDTO> commentList = commentService.getCommentListByArticleId(articleId);
 
+        model.addAttribute("loggedInMemberSerial", getLoggedInMemberSerial);
         model.addAttribute("article", article);
         model.addAttribute("commentList", commentList);
 
