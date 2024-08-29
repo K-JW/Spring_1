@@ -39,28 +39,40 @@
                 <th scope="col">조회수</th>
                 <th scope="col">댓글수</th>
                 <th scope="col"></th>
-                <th scope="col"></th>
             </tr>
             </thead>
             <tbody>
             <tr class="article-element" th:each="article : ${articleList}" th:data-href="@{/articles/{id}(id=${article.id})}">
                 <td th:text="${article.id}">Id</td>
                 <td><a th:href="@{/articles/{id}(id=${article.id})}" th:text="${article.title}" class="article-link">Title</a></td>
-                <td th:text="${article.authorName}"></td>
+                <td th:text="${article.authorMember.name}"></td>
                 <td th:text="${article.createdAt}"></td>
                 <td th:text="${article.modifiedAt}"></td>
                 <td id="view-count" th:text="${article.viewCount}"></td>
                 <td id="comment-count" th:text="${article.commentCount}"></td>
                 <td id="edit-delete">
-                    <a class="btn btn-light" th:href="@{/articles/edit/{id}(id=${article.id})}">수정</a>
-                    <a class="btn btn-warning" th:href="@{/articles/delete/{id}(id=${article.id})}" onclick="return confirm('게시글을 삭제하시겠습니까?');">삭제</a>
-                </td>
-                <td id="report">
+                    <a class="btn btn-light" th:if="${loggedInMemberSerial} == ${article.authorMember.serial}" th:href="@{/articles/edit/{id}(id=${article.id})}">수정</a>
+                    <a class="btn btn-warning" th:if="${loggedInMemberSerial} == ${article.authorMember.serial}" th:href="@{/articles/delete/{id}(id=${article.id})}" onclick="return confirm('게시글을 삭제하시겠습니까?');">삭제</a>
                     <button type="button" id="report-button" class="btn btn-danger" th:data-article-id="${article.id}" data-bs-toggle="modal" data-bs-target="#report-modal">신고</button>
                 </td>
             </tr>
             </tbody>
         </table>
+
+        <!-- 페이지 번호 링크(현재 페이지는 숫자만)
+                        for(int page=startPage; page<=endPage; page++)-->
+        <div>
+        <span th:each="page: ${#numbers.sequence(startPage, endPage)}">
+
+		<!-- 현재페이지는 링크 없이 숫자만 -->
+            <span th:if="${page == articleList.number + 1}" th:text="${page}"></span>
+            <!-- 현재페이지 링크 X, 다른 페이지번호에는 링크를 보여준다 -->
+            <span th:unless="${page == articleList.number + 1}">
+        <a th:href="@{/articles(page=${page})}" th:text="${page}"></a>
+            </span>
+        </span>
+        </div>
+
         <a class="btn btn-primary" th:href="@{/articles/new}">작성</a>
     </div>
 
