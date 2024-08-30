@@ -16,7 +16,7 @@
         <tbody th:if="${comment.commentId} == ${comment.parentComment.id}" th:each="comment : ${commentList}">
         <div>
             <tr>
-                <td th:text="${comment.authorName}">작성자</td>
+                <td th:text="${comment.authorMember.name}">작성자</td>
                 <td th:text="${comment.createdAt}">작성일</td>
             </tr>
             <tr>
@@ -26,7 +26,7 @@
                 <td>
                     <button type="button" class="btn btn-success reply-button" th:data-article-id="${article.id}" th:data-comment-id="${comment.commentId}">답글</button>
                 </td>
-                <td>
+                <td th:if="${comment.authorMember.serial} == ${loggedInMemberSerial}">
                     <a class="btn btn-warning update-button" th:data-article-id="${article.id}" th:data-comment-id="${comment.commentId}">수정</a>
                     <a class="btn btn-secondary delete-button" th:data-comment-id="${comment.commentId}">삭제</a>
                 </td>
@@ -34,11 +34,11 @@
             <tr class="reply-form-row" th:if="${reply.commentId} != ${reply.parentComment.id} and ${comment.commentId} == ${reply.parentComment.id}" th:each="reply : ${commentList}">
                 <td colspan="3" class="reply-comment" style="padding-left: 20px;">
                     <div>
-                        <span th:text="${reply.authorName}">작성자</span>
+                        <span th:text="${reply.authorMember.name}">작성자</span>
                         <span th:text="${reply.createdAt}">작성일</span>
                         <p id="reply-content" th:text="${reply.content}">내용</p>
-                        <a class="btn btn-warning update-button" th:data-article-id="${article.id}" th:data-comment-id="${reply.commentId}">수정</a>
-                        <a class="btn btn-secondary delete-button" th:data-comment-id="${reply.commentId}">삭제</a>
+                        <a class="btn btn-warning update-button" th:if="${reply.authorMember.serial} == ${loggedInMemberSerial}" th:data-article-id="${article.id}" th:data-comment-id="${reply.commentId}">수정</a>
+                        <a class="btn btn-secondary delete-button" th:if="${reply.authorMember.serial} == ${loggedInMemberSerial}" th:data-comment-id="${reply.commentId}">삭제</a>
                     </div>
                     <div class="reply-form-container"></div>
                 </td>
