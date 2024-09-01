@@ -9,12 +9,15 @@ import org.portfolio.spring_1.entity.Comment;
 import org.portfolio.spring_1.entity.Member;
 import org.portfolio.spring_1.mapper.CommentMapper;
 import org.portfolio.spring_1.repository.CommentRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -65,10 +68,29 @@ public class CommentService {
         return commentMapper.toDTO(savedComment);
     }
 
-    public List<CommentResponseDTO> getCommentListByArticleId(Long articleId) {
-        return commentRepository.findAllByArticleId(articleId).stream()
-                .map(commentMapper::toDTO)
-                .collect(Collectors.toList());
+    public Page<CommentResponseDTO> getCommentListByArticleId(Long articleId, Pageable pageable) {
+
+        int pageNumber = pageable.getPageNumber()-1;
+
+        int pageLimit = 3;
+
+        Page<Comment> pagingComments = commentRepository.findAllByArticleId(articleId, PageRequest.of(pageNumber, pageLimit, Sort.by(Sort.Direction.ASC, "createdAt")));
+
+        getPagingCommentsInfo(pagingComments);
+
+        return pagingComments.map(commentMapper::toDTO);
+    }
+
+    public void getPagingCommentsInfo(Page<Comment> pagingComments) {
+        System.out.println("----------- comment paging info -----------\n");
+        System.out.println("comment entity object number : " + pagingComments.getContent());
+        System.out.println("total comment number : " + pagingComments.getTotalElements());
+        System.out.println("present page number : " + pagingComments.getNumber());
+        System.out.println("total page number : " + pagingComments.getTotalPages());
+        System.out.println("1 block " + pagingComments.getSize() + " page");
+        System.out.println("is previous page? " + pagingComments.hasPrevious());
+        System.out.println("present page is first? " + pagingComments.isFirst());
+        System.out.println("present page is last? " + pagingComments.isLast());
     }
 
     public void deleteByArticleId(Long articleId) {
