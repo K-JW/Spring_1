@@ -61,7 +61,7 @@
 
         <!-- 페이지 번호 링크(현재 페이지는 숫자만)
                         for(int page=startPage; page<=endPage; page++)-->
-        <div>
+        <div style="text-align : center;">
         <span th:each="page: ${#numbers.sequence(startPage, endPage)}">
 
 		<!-- 현재페이지는 링크 없이 숫자만 -->
