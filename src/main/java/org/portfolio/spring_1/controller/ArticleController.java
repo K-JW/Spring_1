@@ -48,15 +48,24 @@ public class ArticleController {
 
     // 특정 게시글 조회 페이지 반환
     @GetMapping("/{articleId}")
-    public String getArticle(@PathVariable Long articleId, @AuthenticationPrincipal CustomOAuth2Member customOAuth2Member, Model model) {
+    public String getArticle(@PathVariable Long articleId, @PageableDefault(page=1) Pageable pageable, @AuthenticationPrincipal CustomOAuth2Member customOAuth2Member, Model model) {
 
         String getLoggedInMemberSerial = customOAuth2Member.getSerial();
         Member member = memberService.getMemberBySerial(getLoggedInMemberSerial);
 
         ArticleResponseDTO article = articleService.getAndReturnArticleByIdAndSerial(articleId,false);
 
-        List<CommentResponseDTO> commentList = commentService.getCommentListByArticleId(articleId);
+        Page<CommentResponseDTO> commentList = commentService.getCommentListByArticleId(articleId, pageable);
+        List<CommentResponseDTO> replyList = commentService.getReplyListByArticleId(articleId);
 
+        int blockLimit = 10;
+        int startPage = (((int) Math.ceil(((double) pageable.getPageNumber() / blockLimit))) -1) * blockLimit + 1;
+        int endPage = Math.min((startPage + blockLimit-1), commentList.getTotalPages());
+
+        model.addAttribute("commentList", commentList);
+        model.addAttribute("replyList", replyList);
+        model.addAttribute("startPage", startPage);
+        model.addAttribute("endPage", endPage);
         model.addAttribute("loggedInMemberSerial", getLoggedInMemberSerial);
         model.addAttribute("article", article);
         model.addAttribute("commentList", commentList);
