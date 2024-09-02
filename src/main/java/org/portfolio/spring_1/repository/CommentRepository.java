@@ -11,8 +11,11 @@ import java.util.List;
 
 public interface CommentRepository extends JpaRepository<Comment, Long> {
 
-    @Query("SELECT cm FROM Comment cm WHERE cm.article.id = :articleId")
-    Page<Comment> findAllByArticleId(@Param("articleId") Long articleId, @Param("pageable") Pageable pageable);
+    @Query("SELECT cm FROM Comment cm WHERE cm.article.id = :articleId AND cm.id = cm.parentComment.id")
+    Page<Comment> findCommentAllByArticleId(@Param("articleId") Long articleId, @Param("pageable") Pageable pageable);
+
+    @Query("SELECT cm FROM Comment cm WHERE cm.article.id = :articleId AND cm.id != cm.parentComment.id")
+    List<Comment> findReplyAllByArticleId(@Param("articleId") Long articleId);
 
     @Query("SELECT cm FROM Comment cm WHERE cm.article.id = :articleId")
     List<Comment> findAllByArticleId(@Param("articleId") Long articleId);
