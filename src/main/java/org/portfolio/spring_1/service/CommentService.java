@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -74,11 +75,17 @@ public class CommentService {
 
         int pageLimit = 3;
 
-        Page<Comment> pagingComments = commentRepository.findAllByArticleId(articleId, PageRequest.of(pageNumber, pageLimit, Sort.by(Sort.Direction.ASC, "createdAt")));
+        Page<Comment> pagingComments = commentRepository.findCommentAllByArticleId(articleId, PageRequest.of(pageNumber, pageLimit, Sort.by(Sort.Direction.DESC, "createdAt")));
 
         getPagingCommentsInfo(pagingComments);
 
         return pagingComments.map(commentMapper::toDTO);
+    }
+
+    public List<CommentResponseDTO> getReplyListByArticleId(Long articleId) {
+        return commentRepository.findReplyAllByArticleId(articleId).stream()
+                .map(commentMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
     public void getPagingCommentsInfo(Page<Comment> pagingComments) {
