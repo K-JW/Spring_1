@@ -31,7 +31,7 @@
                     <a class="btn btn-secondary delete-button" th:data-comment-id="${comment.commentId}">삭제</a>
                 </td>
             </tr>
-            <tr class="reply-form-row" th:if="${reply.commentId} != ${reply.parentComment.id} and ${comment.commentId} == ${reply.parentComment.id}" th:each="reply : ${commentList}">
+            <tr class="reply-form-row" th:if="${reply.commentId} != ${reply.parentComment.id} and ${comment.commentId} == ${reply.parentComment.id}" th:each="reply : ${replyList}">
                 <td colspan="3" class="reply-comment" style="padding-left: 20px;">
                     <div>
                         <span th:text="${reply.authorMember.name}">작성자</span>
@@ -46,6 +46,14 @@
         </div>
         </tbody>
     </table>
+    <div th:if="${commentList.totalElements > 0}">
+        <span th:each="page : ${#numbers.sequence(startPage, endPage)}">
+            <span th:if="${page == commentList.number + 1}" th:text="${page}"></span>
+            <span th:unless="${page == commentList.number + 1}">
+                <a th:href="@{/articles/{articleId}(articleId=${article.id}, page=${page})}" th:text="${page}"></a>
+            </span>
+        </span>
+    </div>
 </div>
 <!--답글 작성용 모달-->
 <div class="modal fade" id="replyModal" tabindex="-1" aria-labelledby="replyModalLabel" aria-hidden="true">
