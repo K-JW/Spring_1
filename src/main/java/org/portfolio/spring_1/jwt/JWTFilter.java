@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.portfolio.spring_1.dto.CustomOAuth2Member;
 import org.portfolio.spring_1.dto.MemberDTO;
+import org.portfolio.spring_1.service.RedisService;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,6 +25,9 @@ import java.io.IOException;
 public class JWTFilter extends OncePerRequestFilter {
 
     private final JWTUtil jwtUtil;
+    private final RedisService redisService;
+
+    private static final int BAD_REQUEST = HttpServletResponse.SC_BAD_REQUEST; // == 400
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -60,6 +64,7 @@ public class JWTFilter extends OncePerRequestFilter {
             jwtUtil.isExpired(accessToken);
         } catch(ExpiredJwtException e) {
             exceptionResponse(response,"access token expired");
+            response.sendRedirect("/reissue");
             return;
         }
 
@@ -102,5 +107,40 @@ public class JWTFilter extends OncePerRequestFilter {
                 .name(name)
                 .provider(provider)
                 .build();
+    }
+
+    public String checkRefreshToken(String refreshToken, HttpServletResponse response) {
+
+        // null 확인
+        if (refreshToken == null) {
+            response.setStatus(BAD_REQUEST);
+            return null;
+        }
+
+        // expiration 확인
+        try {
+            jwtUtil.isExpired(refreshToken);
+        } catch (ExpiredJwtException e) {
+            response.setStatus(BAD_REQUEST);
+            return null;
+        }
+
+        // category 확인
+        String category = jwtUtil.getClaim(refreshToken, "category");
+
+        if (!category.equals("refresh")) {
+            response.setStatus(BAD_REQUEST);
+            return null;
+        }
+
+        // redis에 존재 여부 확인
+        String key = jwtUtil.getClaim(refreshToken, "serial");
+
+        if (redisService.getValues(key) == null) {
+            response.setStatus(BAD_REQUEST);
+            return null;
+        }
+
+        return key;
     }
 }
