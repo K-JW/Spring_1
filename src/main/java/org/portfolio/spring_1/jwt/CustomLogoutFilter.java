@@ -20,8 +20,8 @@ import java.io.IOException;
 public class CustomLogoutFilter extends GenericFilterBean {
 
     private final JWTUtil jwtUtil;
+    private final JWTFilter jwtFilter;
     private final RedisService redisService;
-    private static final int BAD_REQUEST = HttpServletResponse.SC_BAD_REQUEST; // == 400
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain) throws IOException, ServletException {
@@ -59,7 +59,7 @@ public class CustomLogoutFilter extends GenericFilterBean {
 
         // refresh token의 null, expiration, category, redis에 존재 여부 확인
         // 모든 확인 후 token의 serial return
-        String key = checkRefreshToken(refreshToken, response);
+        String key = jwtFilter.checkRefreshToken(refreshToken, response);
 
         redisService.deleteValues(key);
 
@@ -75,41 +75,6 @@ public class CustomLogoutFilter extends GenericFilterBean {
 
         System.out.println("redis에 존재하는 refresh token 삭제 후 login page로 이동");
         response.sendRedirect("/login");
-    }
-
-    private String checkRefreshToken(String refreshToken, HttpServletResponse response) {
-
-        // null 확인
-        if (refreshToken == null) {
-            response.setStatus(BAD_REQUEST);
-            return null;
-        }
-
-        // expiration 확인
-        try {
-            jwtUtil.isExpired(refreshToken);
-        } catch (ExpiredJwtException e) {
-            response.setStatus(BAD_REQUEST);
-            return null;
-        }
-
-        // category 확인
-        String category = jwtUtil.getClaim(refreshToken, "category");
-
-        if (!category.equals("refresh")) {
-            response.setStatus(BAD_REQUEST);
-            return null;
-        }
-
-        // redis에 존재 여부 확인
-        String key = jwtUtil.getClaim(refreshToken, "serial");
-
-        if (redisService.getValues(key) == null) {
-            response.setStatus(BAD_REQUEST);
-            return null;
-        }
-
-        return key;
     }
 
     private Cookie deleteCookie(String token) {
