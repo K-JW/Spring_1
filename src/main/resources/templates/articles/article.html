@@ -18,14 +18,14 @@
             <tbody>
             <tr>
                 <td id="article-title" th:text="${article.title}">제목</td>
-                <td th:text="${article.authorName}">작성자</td>
+                <td th:text="${article.authorMember.name}">작성자</td>
             </tr>
             <tr>
                 <td id="article-content" th:text="${article.content}">내용</td>
             </tr>
             </tbody>
         </table>
-
+        <br>
         <div th:replace="~{/comments/commentMain}"></div>
     </div>
 
