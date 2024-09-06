@@ -27,7 +27,7 @@
         <div>
             <a id="main-home" class="btn btn-info" th:href="@{/articles}">Home</a>
         </div>
-        <div id="auth-buttons">
+        <div id="auth-buttons" class="d-flex justify-content-flex-between">
             <div sec:authorize="isAnonymous()">
                 <a class="btn btn-primary" th:href="@{/login}">Login</a>
             </div>
