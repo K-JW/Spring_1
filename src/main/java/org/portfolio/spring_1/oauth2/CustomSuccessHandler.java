@@ -58,8 +58,8 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         // 응답 설정
         response.setStatus(HttpStatus.OK.value());
         response.setHeader("Authorization", "Bearer " + accessToken);
-        response.addCookie(createCookie("access", accessToken));
-        response.addCookie(createCookie("refresh", refreshToken));
+//        response.addCookie(createCookie("access", accessToken));
+//        response.addCookie(createCookie("refresh", refreshToken));
 
         if (role.equals("USER")) {
             response.sendRedirect(REDIRECT_PATH);
