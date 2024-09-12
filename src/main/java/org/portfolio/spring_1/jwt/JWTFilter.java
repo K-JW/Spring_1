@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.portfolio.spring_1.dto.CustomOAuth2Member;
 import org.portfolio.spring_1.dto.MemberDTO;
-import org.portfolio.spring_1.service.RedisService;
+import org.portfolio.spring_1.service.ReissueService;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,46 +25,46 @@ import java.io.IOException;
 public class JWTFilter extends OncePerRequestFilter {
 
     private final JWTUtil jwtUtil;
-    private final RedisService redisService;
-
-    private static final int BAD_REQUEST = HttpServletResponse.SC_BAD_REQUEST; // == 400
+    private final ReissueService reissueService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        String accessToken = null;
-//        String accessToken = request.getHeader("Authorization");
+        String accessToken = request.getHeader("Authorization");
 
-        Cookie[] cookies = request.getCookies();
+        log.info("accessToken = {}", accessToken);
 
-        if (cookies == null) {
-            log.info("cookies are null");
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        for (Cookie cookie : cookies) {
-            if (cookie.getName().equals("access")) {
-                accessToken = cookie.getValue();
-                break;
-            }
-        }
+//        Cookie[] cookies = request.getCookies();
+//
+//        if (cookies == null) {
+//            log.info("cookies are null");
+//            filterChain.doFilter(request, response);
+//            return;
+//        }
+//
+//        for (Cookie cookie : cookies) {
+//            if (cookie.getName().equals("access")) {
+//                accessToken = cookie.getValue();
+//                break;
+//            }
+//        }
 
         log.info("accessToken value = {}", accessToken);
 
-        // header에서 token 존재 여부 확인, 존재하지 않을 시 다음 필터 진행
+        // header에서 token 존재 여부 확인, 존재하지 않을 시 재발급 후 다음 필터 진행
         if (accessToken == null) {
             log.info("accessToken is null");
             filterChain.doFilter(request, response);
             return;
         }
 
-        // token 만료 여부 확인, 만료시 필터 진행 종료
+        // token 만료 여부 확인, 만료시 재발급
         try {
             jwtUtil.isExpired(accessToken);
         } catch(ExpiredJwtException e) {
             exceptionResponse(response,"access token expired");
-            response.sendRedirect("/reissue");
+            System.out.println("accessToken 재발급 실행");
+            reissueService.reissue(request, response, accessToken);
             return;
         }
 
@@ -107,40 +107,5 @@ public class JWTFilter extends OncePerRequestFilter {
                 .name(name)
                 .provider(provider)
                 .build();
-    }
-
-    public String checkRefreshToken(String refreshToken, HttpServletResponse response) {
-
-        // null 확인
-        if (refreshToken == null) {
-            response.setStatus(BAD_REQUEST);
-            return null;
-        }
-
-        // expiration 확인
-        try {
-            jwtUtil.isExpired(refreshToken);
-        } catch (ExpiredJwtException e) {
-            response.setStatus(BAD_REQUEST);
-            return null;
-        }
-
-        // category 확인
-        String category = jwtUtil.getClaim(refreshToken, "category");
-
-        if (!category.equals("refresh")) {
-            response.setStatus(BAD_REQUEST);
-            return null;
-        }
-
-        // redis에 존재 여부 확인
-        String key = jwtUtil.getClaim(refreshToken, "serial");
-
-        if (redisService.getValues(key) == null) {
-            response.setStatus(BAD_REQUEST);
-            return null;
-        }
-
-        return key;
     }
 }
