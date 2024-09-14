@@ -49,23 +49,23 @@ public class CustomLogoutFilter extends GenericFilterBean {
             return;
         }
 
-        String accessToken = request.getHeader("Authorization");
+        String accessToken = null;
 
-        log.info("logout's accessToken = {}", accessToken);
+//        String accessToken = request.getHeader("Authorization");
+//
+//        log.info("logout's accessToken = {}", accessToken);
+
+        Cookie[] cookies = request.getCookies();
+
+        for (Cookie cookie : cookies) {
+            if (cookie.getName().equals("access")) {
+                accessToken = cookie.getValue();
+            }
+        }
 
         String serial = jwtUtil.getClaim(accessToken, "serial");
 
         String refreshTokenInRedis = redisService.getValues(serial);
-
-//        String refreshToken = null;
-//        Cookie[] cookies = request.getCookies();
-//
-//        for (Cookie cookie : cookies) {
-//            if (cookie.getName().equals("refresh")) {
-//                refreshToken = cookie.getValue();
-//                System.out.println("refresh token initialized");
-//            }
-//        }
 
         // refresh token의 null, expiration, category, redis에 존재 여부 확인
         // 모든 확인 후 token의 serial return
@@ -75,12 +75,12 @@ public class CustomLogoutFilter extends GenericFilterBean {
 
         // 클라이언트 쿠키 값 초기화 메소드 호출
 //        Cookie refresh = deleteCookie("refresh");
-//        Cookie access = deleteCookie("access");
+        Cookie access = deleteCookie("access");
         Cookie session = deleteCookie("JSESSIONID");
 
         response.setStatus(HttpServletResponse.SC_OK); // == 200
 //        response.addCookie(refresh);
-//        response.addCookie(access);
+        response.addCookie(access);
         response.addCookie(session);
 
         System.out.println("redis에 존재하는 refresh token 삭제 후 login page로 이동");
