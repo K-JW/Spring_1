@@ -43,6 +43,22 @@
             </div>
         </section>
     </div>
-
 </body>
+<script>
+    fetch('/login/success', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+        .then(response => response.json())
+        .then(data => {
+            const accessToken = data.accessToken;
+
+            console.log("accessToken : ", accessToken);
+        })
+        .catch(error => {
+            console.error("Error : ", error);
+        })
+</script>
 </html>
