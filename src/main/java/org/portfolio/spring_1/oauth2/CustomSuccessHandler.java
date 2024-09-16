@@ -56,16 +56,17 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         System.out.printf("accessToken = %s%n", accessToken);
 
         // 응답 설정
+        response.addCookie(createCookie(accessToken));
         response.setStatus(HttpStatus.OK.value());
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+//        response.getWriter().write(accessToken);
         response.setHeader("Authorization", "Bearer " + accessToken);
-//        response.addCookie(createCookie("access", accessToken));
-//        response.addCookie(createCookie("refresh", refreshToken));
+//        response.sendRedirect("/articles");
 
-        if (role.equals("USER")) {
-            response.sendRedirect(REDIRECT_PATH);
-        } else {
-            response.sendRedirect(ADMIN_REDIRECT_PATH);
-        }
+
+//        response.setHeader("Authorization", "Bearer " + accessToken);
+//        response.addCookie(createCookie("refresh", refreshToken));
 
     }
 
@@ -75,15 +76,16 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         return authority.getAuthority();
     }
 
-    private Cookie createCookie(String token, String value) {
-        Cookie cookie = new Cookie(token, value);
-        int maxAge;
+    private Cookie createCookie(String value) {
+        Cookie cookie = new Cookie("access", value);
+        int maxAge = (int) ACCESS_TOKEN_EXPIRATION / 1000;
 
-        if (token.equals("access")) {
-            maxAge = (int) ACCESS_TOKEN_EXPIRATION / 1000;
-        } else {
-            maxAge = (int) REFRESH_TOKEN_EXPIRATION / 1000;
-        }
+//        if (token.equals("access")) {
+//            maxAge = (int) ACCESS_TOKEN_EXPIRATION / 1000;
+//        }
+//        else {
+//            maxAge = (int) REFRESH_TOKEN_EXPIRATION / 1000;
+//        }
 
         cookie.setMaxAge(maxAge);
         cookie.setPath("/");
